@@ -32,5 +32,11 @@ var vehicles = function(options, cb) {
 };
 
 vehicles(credentials, function(data){
-  console.log('start my\n\n', data);
+  var vid = data.id;
+  request(portal + '/vehicles/' + vid + '/command/charge_state', function(error, response, body){
+    var data = JSON.parse(body);
+    for(var key in data){
+      console.log(key, '\t\t\t\t', data[key]);
+    }
+  });
 });
