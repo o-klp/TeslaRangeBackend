@@ -1,0 +1,15 @@
+{
+  "name": "TeslaRange_backend",
+  "version": "0.0.0",
+  "description": "server code for interacting with tesla api",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Keenan Lidral-Porter",
+  "license": "ISC",
+  "dependencies": {
+    "request": "^2.50.0"
+  }
+}
