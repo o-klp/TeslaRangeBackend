@@ -16,9 +16,6 @@ app.use(function(req, res, next) {
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
-var vehicleID
-var batterySize
-
 app.use(function(req, res, next){
   request({
     method: 'POST',
@@ -32,15 +29,15 @@ app.use(function(req, res, next){
     request(portal + '/vehicles', function(error, response, body){
       if(error) { throw new Error(error) }
       body = JSON.parse(body)[0]
-      vehicleID = body.id
-      batterySize = body.option_codes.split("BT")[1].split(",")[0]
+      req.vehicleID = body.id
+      req.batterySize = body.option_codes.split("BT")[1].split(",")[0]
       next()
     })
   })
 })
 
 app.get('/location', function(req, res){
-  request(portal + '/vehicles/' + vehicleID + '/command/drive_state', function(error, response, body){
+  request(portal + '/vehicles/' + req.vehicleID + '/command/drive_state', function(error, response, body){
     if(error) { throw new Error(error) }
     body = JSON.parse(body)
     var latitude = body.latitude
@@ -56,7 +53,7 @@ app.get('/location', function(req, res){
 })
 
 app.get('/battery', function(req, res){
-  request(portal + '/vehicles/' + vehicleID + '/command/charge_state', function(error, response, body){
+  request(portal + '/vehicles/' + req.vehicleID + '/command/charge_state', function(error, response, body){
     if(error) { throw new Error(error) }
     body = JSON.parse(body)
     var batteryRange = body.battery_range
@@ -67,7 +64,7 @@ app.get('/battery', function(req, res){
       batteryRange: batteryRange,
       estimatedBatteryRange: estimatedBatteryRange,
       batteryLevel: batteryLevel / 100,
-      batterySize: parseInt(batterySize)
+      batterySize: parseInt(req.batterySize)
     })
   })
 })
