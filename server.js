@@ -39,6 +39,22 @@ app.use(function(req, res, next){
   })
 })
 
+app.get('/location', function(req, res){
+  request(portal + '/vehicles/' + vehicleID + '/command/drive_state', function(error, response, body){
+    if(error) { throw new Error(error) }
+    body = JSON.parse(body)
+    var latitude = body.latitude
+    var longitude = body.longitude
+    var timestamp = body.gps_as_of
+
+    res.json({
+      latitude: latitude,
+      longitude: longitude,
+      timestamp: timestamp
+    })
+  })
+})
+
 app.listen(3000)
 
 // var test = m.request({
