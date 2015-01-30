@@ -1,42 +1,57 @@
-var request = require('request');
+var request = require('request')
+var express = require('express')
+var bodyParser = require('body-parser')
 
-var credentials = require('./credentials.js');
+var credentials = require('./credentials.js')
 
-var portal = 'https://portal.vn.teslamotors.com';
+var portal = 'https://portal.vn.teslamotors.com'
+var app = express()
 
-var all = function(options, cb) {
-  if (!cb) cb = function(error, response, body) {/* jshint unused: false */};
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*")
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+  next()
+})
 
-  request({ method                     : 'POST',
-            url                        : portal + '/login',
-            form                       :
-            { "user_session[email]"    : options.email,
-              "user_session[password]" : options.password
-            }
-          }, function (error, response, body) {
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }))
 
-    request(portal + '/vehicles', cb);
-  });
-};
+app.get('/', function(req, res){
+  res.status(200).send('hello world')
+})
 
-// returns first vehicle in list
-var vehicles = function(options, cb) {
-  if (!cb) cb = function(data) {/* jshint unused: false */};
+app.post('/', function(req, res){
+  console.log(req.body)
+  res.status(200).send('posted')
+})
 
-  all(options, function (error, response, body) {
-    var data = JSON.parse(body);
+app.listen(3000)
 
-    data = data[0];
-    cb((!!data.id) ? data : (new Error('expecting vehicle ID from Tesla Motors cloud service')));
-  });
-};
+// var all = function(options, cb) {
+//   if (!cb) cb = function(error, response, body) {/* jshint unused: false */};
 
-vehicles(credentials, function(data){
-  var vid = data.id;
-  request(portal + '/vehicles/' + vid + '/command/charge_state', function(error, response, body){
-    var data = JSON.parse(body);
-    for(var key in data){
-      console.log(key, '\t\t\t\t', data[key]);
-    }
-  });
-});
+//   request({ method                     : 'POST',
+//             url                        : portal + '/login',
+//             form                       :
+//             { "user_session[email]"    : options.email,
+//               "user_session[password]" : options.password
+//             }
+//           }, function (error, response, body) {
+
+//     request(portal + '/vehicles', cb);
+//   });
+// };
+
+// var test = m.request({
+//   method: 'POST',
+//   url:'http://localhost:3000',
+//   serialize: function(data) {return data},
+//   deserialize: function(value) {return value},
+//   data: data,
+//   config: xhrConfig
+// }).then(function(response){
+//   console.log(response);
+// })
+// var xhrConfig = function(xhr) {
+//     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+// }

@@ -10,6 +10,8 @@
   "author": "Keenan Lidral-Porter",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.10.2",
+    "express": "^4.11.1",
     "request": "^2.50.0"
   }
 }
