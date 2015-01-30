@@ -55,6 +55,23 @@ app.get('/location', function(req, res){
   })
 })
 
+app.get('/battery', function(req, res){
+  request(portal + '/vehicles/' + vehicleID + '/command/charge_state', function(error, response, body){
+    if(error) { throw new Error(error) }
+    body = JSON.parse(body)
+    var batteryRange = body.battery_range
+    var estimatedBatteryRange = body.est_battery_range
+    var batteryLevel = body.battery_level
+
+    res.json({
+      batteryRange: batteryRange,
+      estimatedBatteryRange: estimatedBatteryRange,
+      batteryLevel: batteryLevel / 100,
+      batterySize: parseInt(batterySize)
+    })
+  })
+})
+
 app.listen(3000)
 
 // var test = m.request({
