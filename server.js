@@ -16,6 +16,9 @@ app.use(function(req, res, next) {
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
+var vehicleID
+var batterySize
+
 app.use(function(req, res, next){
   request({
     method: 'POST',
@@ -26,19 +29,13 @@ app.use(function(req, res, next){
     }
   }, function(error, response, body){
     if(error) { throw new Error(error) }
-    next()
-  })
-})
-
-app.get('/location', function(req, res){
-  request(portal + '/vehicles', function(error, response, body){
-    if(error) { throw new Error(error) }
-    body = JSON.parse(body)[0]
-    var vehicleID = body.id
-    var batterySize = body.option_codes.split("BT")[1].split(",")[0]
-
-    console.log(vehicleID, batterySize)
-    res.send(vehicleID + '\t' + batterySize)
+    request(portal + '/vehicles', function(error, response, body){
+      if(error) { throw new Error(error) }
+      body = JSON.parse(body)[0]
+      vehicleID = body.id
+      batterySize = body.option_codes.split("BT")[1].split(",")[0]
+      next()
+    })
   })
 })
 
