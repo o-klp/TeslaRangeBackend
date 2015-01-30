@@ -16,16 +16,7 @@ app.use(function(req, res, next) {
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
-app.get('/', function(req, res){
-  res.status(200).send('hello world')
-})
-
-app.post('/', function(req, res){
-  console.log(req.body)
-  res.status(200).send('posted')
-})
-
-app.get('/location', function(req, res){
+app.use(function(req, res, next){
   request({
     method: 'POST',
     url: portal + '/login',
@@ -34,34 +25,24 @@ app.get('/location', function(req, res){
       "user_session[password]": credentials.password,
     }
   }, function(error, response, body){
-    request(portal + '/vehicles', function(error, response, body){
-      if(error) { throw new Error(error) }
-      body = JSON.parse(body)[0]
-      var vehicleID = body.id
-      var batterySize = body.option_codes.split("BT")[1].split(",")[0]
+    if(error) { throw new Error(error) }
+    next()
+  })
+})
 
-      console.log(vehicleID, batterySize)
-      res.send(vehicleID + '\t' + batterySize)
-    })
+app.get('/location', function(req, res){
+  request(portal + '/vehicles', function(error, response, body){
+    if(error) { throw new Error(error) }
+    body = JSON.parse(body)[0]
+    var vehicleID = body.id
+    var batterySize = body.option_codes.split("BT")[1].split(",")[0]
+
+    console.log(vehicleID, batterySize)
+    res.send(vehicleID + '\t' + batterySize)
   })
 })
 
 app.listen(3000)
-
-// var all = function(options, cb) {
-//   if (!cb) cb = function(error, response, body) {/* jshint unused: false */};
-
-//   request({ method                     : 'POST',
-//             url                        : portal + '/login',
-//             form                       :
-//             { "user_session[email]"    : options.email,
-//               "user_session[password]" : options.password
-//             }
-//           }, function (error, response, body) {
-
-//     request(portal + '/vehicles', cb);
-//   });
-// };
 
 // var test = m.request({
 //   method: 'POST',
