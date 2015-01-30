@@ -25,6 +25,27 @@ app.post('/', function(req, res){
   res.status(200).send('posted')
 })
 
+app.get('/location', function(req, res){
+  request({
+    method: 'POST',
+    url: portal + '/login',
+    form: {
+      "user_session[email]": credentials.email,
+      "user_session[password]": credentials.password,
+    }
+  }, function(error, response, body){
+    request(portal + '/vehicles', function(error, response, body){
+      if(error) { throw new Error(error) }
+      body = JSON.parse(body)[0]
+      var vehicleID = body.id
+      var batterySize = body.option_codes.split("BT")[1].split(",")[0]
+
+      console.log(vehicleID, batterySize)
+      res.send(vehicleID + '\t' + batterySize)
+    })
+  })
+})
+
 app.listen(3000)
 
 // var all = function(options, cb) {
