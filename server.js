@@ -2,8 +2,6 @@ var request = require('request')
 var express = require('express')
 var bodyParser = require('body-parser')
 
-var credentials = require('./credentials.js')
-
 var portal = 'https://portal.vn.teslamotors.com'
 var app = express()
 
@@ -19,7 +17,7 @@ app.use(function(req, res, next){
 
   if( req.method === "OPTIONS" ) {
     res.status(200).end()
-  } else {
+  } else if( req.body.email && req.body.password ) {
     request({
       method: 'POST',
       url: portal + '/login',
@@ -28,15 +26,21 @@ app.use(function(req, res, next){
         "user_session[password]": req.body.password,
       }
     }, function(error, response, body){
-      if(error) { res.status(400).send(error) }
+      if(error) { return res.status(400).end() }
       request(portal + '/vehicles', function(error, response, body){
-        if(error) { res.status(400).send(error) }
-        body = JSON.parse(body)[0]
+        if(error) { return res.status(400).end() }
+        try {
+          body = JSON.parse(body)[0]
+        } catch(e) {
+          return res.status(400).end()
+        }
         req.vehicleID = body.id
         req.batterySize = body.option_codes.split("BT")[1].split(",")[0]
         next()
       })
     })
+  } else {
+    res.status(400).end()
   }
 
 })
@@ -45,7 +49,7 @@ app.all('/location', function(req, res){
 
   request(portal + '/vehicles/' + req.vehicleID + '/command/drive_state', function(error, response, body){
 
-    if(error) { res.status(400).send(error) }
+    if(error) { res.status(400).end() }
     body = JSON.parse(body)
     var latitude = body.latitude
     var longitude = body.longitude
@@ -65,7 +69,7 @@ app.all('/battery', function(req, res){
 
   request(portal + '/vehicles/' + req.vehicleID + '/command/charge_state', function(error, response, body){
 
-    if(error) { res.status(400).send(error) }
+    if(error) { res.status(400).end() }
     body = JSON.parse(body)
     var batteryRange = body.battery_range
     var estimatedBatteryRange = body.est_battery_range
