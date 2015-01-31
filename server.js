@@ -54,11 +54,15 @@ app.all('/location', function(req, res){
     var latitude = body.latitude
     var longitude = body.longitude
     var timestamp = body.gps_as_of
+    var heading = body.heading
+    var speed = body.speed
 
     res.status(200).json({
       latitude: latitude,
       longitude: longitude,
-      timestamp: timestamp
+      timestamp: timestamp,
+      heading: heading,
+      speed: speed
     })
 
   })
