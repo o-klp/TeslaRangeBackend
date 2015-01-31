@@ -16,6 +16,7 @@ app.use(function(req, res, next) {
 })
 
 app.use(function(req, res, next){
+
   if( req.method === "OPTIONS" ) {
     res.status(200).end()
   } else {
@@ -37,10 +38,13 @@ app.use(function(req, res, next){
       })
     })
   }
+
 })
 
 app.all('/location', function(req, res){
+
   request(portal + '/vehicles/' + req.vehicleID + '/command/drive_state', function(error, response, body){
+
     if(error) { res.status(400).send(error) }
     body = JSON.parse(body)
     var latitude = body.latitude
@@ -52,11 +56,15 @@ app.all('/location', function(req, res){
       longitude: longitude,
       timestamp: timestamp
     })
+
   })
+
 })
 
 app.all('/battery', function(req, res){
+
   request(portal + '/vehicles/' + req.vehicleID + '/command/charge_state', function(error, response, body){
+
     if(error) { res.status(400).send(error) }
     body = JSON.parse(body)
     var batteryRange = body.battery_range
@@ -67,23 +75,11 @@ app.all('/battery', function(req, res){
       batteryRange: batteryRange,
       estimatedBatteryRange: estimatedBatteryRange,
       batteryLevel: batteryLevel / 100,
-      batterySize: parseInt(req.batterySize)
+      batterySize: parseInt(req.batterySize) * 1000
     })
+
   })
+
 })
 
 app.listen(3000)
-
-// var test = m.request({
-//   method: 'POST',
-//   url:'http://localhost:3000',
-//   serialize: function(data) {return data},
-//   deserialize: function(value) {return value},
-//   data: data,
-//   config: xhrConfig
-// }).then(function(response){
-//   console.log(response);
-// })
-// var xhrConfig = function(xhr) {
-//     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-// }
