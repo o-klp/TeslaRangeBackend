@@ -49,7 +49,7 @@ app.all('/location', function(req, res){
 
   request(portal + '/vehicles/' + req.vehicleID + '/command/drive_state', function(error, response, body){
 
-    if(error) { res.status(400).end() }
+    if(error) { res.status(400).end() }   // CHANGE TO `next(error)`
     body = JSON.parse(body)
     var latitude = body.latitude
     var longitude = body.longitude
@@ -73,7 +73,7 @@ app.all('/battery', function(req, res){
 
   request(portal + '/vehicles/' + req.vehicleID + '/command/charge_state', function(error, response, body){
 
-    if(error) { res.status(400).end() }
+    if(error) { res.status(400).end() }   // CHANGE TO `next(error)`
     body = JSON.parse(body)
     var batteryRange = body.battery_range
     var estimatedBatteryRange = body.est_battery_range
@@ -85,6 +85,17 @@ app.all('/battery', function(req, res){
       batteryLevel: batteryLevel / 100,
       batterySize: parseInt(req.batterySize) * 1000
     })
+
+  })
+
+})
+
+app.all('/distance', function(req, res){
+
+  request('https://maps.googleapis.com/maps/api/elevation/json?locations=' + req.body.origin + '|' + req.body.destination, function(error, response, body){
+
+    if(error) { res.status(400).end() }   // CHANGE TO `next(error)`
+    res.status(200).send(body)
 
   })
 
