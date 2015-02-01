@@ -90,12 +90,34 @@ app.all('/battery', function(req, res){
 
 })
 
+
+// TODO: add optional units
 app.all('/distance', function(req, res){
 
-  request('https://maps.googleapis.com/maps/api/elevation/json?locations=' + req.body.origin + '|' + req.body.destination, function(error, response, body){
+  request('https://maps.googleapis.com/maps/api/directions/json?origin=' + req.body.origin + '&destination=' + req.body.destination, function(error, response, body){
 
     if(error) { res.status(400).end() }   // CHANGE TO `next(error)`
-    res.status(200).send(body)
+    var trip = JSON.parse(body).routes[0].legs[0]
+    var distance = trip.distance
+    var origin = trip.start_location
+    var destination = trip.end_location
+
+    request('https://maps.googleapis.com/maps/api/elevation/json?locations='
+      + origin.lat + ',' + origin.lng + '|'
+      + destination.lat + ',' + destination.lng, function(error, response, body){
+
+        if(error) { res.status(400).end() }   // CHANGE TO `next(error)` & add error if status !== "OK"
+        var results = JSON.parse(body).results
+        origin.elevation = results[0].elevation
+        destination.elevation = results[1].elevation
+
+        res.status(200).send({
+          distance: distance,
+          origin: origin,
+          destination: destination,
+        })
+
+    })
 
   })
 
