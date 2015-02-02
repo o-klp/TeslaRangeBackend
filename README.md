@@ -91,3 +91,14 @@ curl -H "Content-Type: application/json" -d '{"email": "myTeslaEmail", "password
 
 curl -H "Content-Type: application/json" -d '{"email": "myTeslaEmail", "password": "myTeslaPassword", "origin": "San Francisco, CA", "destination": "37.5482486,-121.9885313"}' http://localhost:3000/battery
 ```
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TODO:
+  - add option to specify units (/distance)
+  - add option to specify units (/battery)
+  - proper error handling (i.e. `next(error)`)
+  - proper status codes
+  - actual authentication
+  - promises
+  - tests
+  - 
