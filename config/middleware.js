@@ -20,8 +20,11 @@ app.use(function(req, res, next) {
 })
 
 app.use(function(req, res, next){
+  // handle preflight
   if( req.method === "OPTIONS" ){ return res.status(200).end() }
-  if( req.body.email && req.body.password ){
+
+  if( req.method === "POST" ){
+    // login to Tesla API
     var loginOptions = {
       method: 'POST',
       url: portal + '/login',
@@ -34,6 +37,14 @@ app.use(function(req, res, next){
     request(loginOptions, function(error, response, body){
       if(error){ next(error) }
 
+      /****************************************************
+       *  Grab cookie from Tesla API & pass onto client.  *
+       *    user_credentials = <encrypted string>         *
+       *  sets expiration date, path, makes accessible to *
+       *  client through JS & doens't require client send *
+       *  cookie through https                            *
+       ****************************************************/
+
       var responseCookie = response.headers["set-cookie"][0].split("; ")
       var cookie = {}
       cookie.name = responseCookie[0].split("=")[0]
@@ -41,57 +52,49 @@ app.use(function(req, res, next){
 
       var cookieOptions = {
         expires: new Date(responseCookie[2].split("=")[1]),
-        httpOnly: false,
         path: responseCookie[1].split("=")[1],
+        httpOnly: false,
         secure: false
       }
 
       res.cookie(cookie.name, cookie.value, cookieOptions)
-
-      request(portal + '/vehicles', function(error, response, body){
-        if(error){ next(error) }
-        try {
-          body = JSON.parse(body)[0]
-        } catch(e) {
-          return next(new Error('Invalid credentials'))
-        }
-
-        req.vehicleID = body.id
-        req.batterySize = body.option_codes.split("BT")[1].split(",")[0]
-        next()
-      })
-    })
-  }else if( req.cookies.user_credentials ){
-    var j = request.jar()
-    var cookie = {
-      name: "user_credentials",
-      value: req.cookies.user_credentials,
-      path: "/",
-      expires: new Date("Sun, 17-May-2015 20:05:45 GMT")
-    }
-    j.add(cookie)
-
-    var requestOptions = {
-      url: portal + '/vehicles',
-      jar: j
-    }
-
-    request(requestOptions, function(error, response, body){
-      if(error){ next(error) }
-
-      try {
-        body = JSON.parse(body)[0]
-      } catch(e) {
-        return next(e)
-      }
-
-      req.vehicleID = body.id
-      req.batterySize = body.option_codes.split("BT")[1].split(",")[0]
-      next()
+      res.status(200).json('logged in!')
     })
   }else{
-    next(new Error('Must send email & password'))
+    next()
   }
+})
+
+app.use(function(req, res, next){
+  // grab the vehicle id & battery size before checking location or battery
+
+  // hand cookie from client to Tesla API
+  var j = request.jar()
+  var cookie = {
+    name: "user_credentials",
+    value: req.cookies.user_credentials,
+    path: "/"
+  }
+  j.add(cookie)
+  var requestOptions = {
+    url: portal + '/vehicles',
+    jar: j
+  }
+
+  request(requestOptions, function(error, response, body){
+    if(error){ next(error) }
+
+    // Check if body is valid JSON (if an error Tesla API gives html back)
+    try {
+      body = JSON.parse(body)[0]
+    } catch(e) {
+      return next(new Error('Invalid credentials'))
+    }
+
+    req.vehicleID = body.id
+    req.batterySize = body.option_codes.split("BT")[1].split(",")[0]
+    next()
+  })
 })
 
 module.exports = app
