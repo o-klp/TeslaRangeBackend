@@ -27,14 +27,14 @@ app.use(function(req, res, next){
     }
 
     request(loginOptions, function(error, response, body){
-      if(error){ return res.status(400).end() }
+      if(error){ next(error) }
 
       request(portal + '/vehicles', function(error, response, body){
-        if(error){ return res.status(400).end() }
+        if(error){ next(error) }
         try {
           body = JSON.parse(body)[0]
         } catch(e) {
-          return res.status(400).end()
+          return next(new Error('Invalid credentials'))
         }
 
         req.vehicleID = body.id
@@ -43,7 +43,7 @@ app.use(function(req, res, next){
       })
     })
   }else{
-    res.status(400).end()
+    next(new Error('Must send email & password'))
   }
 })
 

@@ -7,7 +7,7 @@ routes.location = function(req, res){
   + '/command/drive_state'
 
   request(locationUrl , function(error, response, body){
-    if(error) { res.status(400).end() }   // CHANGE TO `next(error)`
+    if(error){ next(error) }
 
     body = JSON.parse(body)
     var latitude = body.latitude
@@ -31,7 +31,7 @@ routes.battery = function(req, res){
   + '/command/charge_state'
 
   request(batteryUrl, function(error, response, body){
-    if(error) { res.status(400).end() }   // CHANGE TO `next(error)`
+    if(error){ next(error) }
 
     body = JSON.parse(body)
     var batteryRange = body.battery_range
@@ -52,7 +52,7 @@ routes.distance = function(req, res){
     + '?origin=' + req.body.origin + '&destination=' + req.body.destination
 
   request(directionsUrl, function(error, response, body){
-    if(error) { res.status(400).end() }   // CHANGE TO `next(error)`
+    if(error){ next(error) }
 
     var trip = JSON.parse(body).routes[0].legs[0]
     var distance = trip.distance
@@ -64,7 +64,7 @@ routes.distance = function(req, res){
       + ',' + destination.lng
 
     request(elevationUrl, function(error, response, body){
-      if(error) { res.status(400).end() }   // CHANGE TO `next(error)`
+      if(error){ next(error) }
 
       var results = JSON.parse(body).results
       origin.elevation = results[0].elevation

@@ -96,7 +96,6 @@ curl -H "Content-Type: application/json" -d '{"email": "myTeslaEmail", "password
 TODO:
   - add option to specify units (/distance)
   - add option to specify units (/battery)
-  - proper error handling (i.e. `next(error)`)
   - proper status codes
   - actual authentication
   - promises
