@@ -6,7 +6,20 @@ routes.location = function(req, res){
   var locationUrl = portal + '/vehicles/' + req.vehicleID
   + '/command/drive_state'
 
-  request(locationUrl , function(error, response, body){
+  var j = request.jar()
+  var cookie = {
+    name: "user_credentials",
+    value: req.cookies.user_credentials,
+    path: "/"
+  }
+  j.add(cookie)
+
+  var requestOptions = {
+    url: locationUrl,
+    jar: j
+  }
+
+  request(requestOptions , function(error, response, body){
     if(error){ next(error) }
 
     body = JSON.parse(body)
@@ -30,7 +43,20 @@ routes.battery = function(req, res){
   var batteryUrl = portal + '/vehicles/' + req.vehicleID
   + '/command/charge_state'
 
-  request(batteryUrl, function(error, response, body){
+  var j = request.jar()
+  var cookie = {
+    name: "user_credentials",
+    value: req.cookies.user_credentials,
+    path: "/"
+  }
+  j.add(cookie)
+
+  var requestOptions = {
+    url: batteryUrl,
+    jar: j
+  }
+
+  request(requestOptions, function(error, response, body){
     if(error){ next(error) }
 
     body = JSON.parse(body)
