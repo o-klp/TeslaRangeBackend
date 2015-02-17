@@ -6,6 +6,7 @@ routes.location = function(req, res){
   var locationUrl = portal + '/vehicles/' + req.vehicleID
   + '/command/drive_state'
 
+  // Pass cookie from client to Tesla API
   var j = request.jar()
   var cookie = {
     name: "user_credentials",
@@ -13,7 +14,6 @@ routes.location = function(req, res){
     path: "/"
   }
   j.add(cookie)
-
   var requestOptions = {
     url: locationUrl,
     jar: j
@@ -43,6 +43,7 @@ routes.battery = function(req, res){
   var batteryUrl = portal + '/vehicles/' + req.vehicleID
   + '/command/charge_state'
 
+  // Pass cookie from client to Tesla API
   var j = request.jar()
   var cookie = {
     name: "user_credentials",
@@ -50,7 +51,6 @@ routes.battery = function(req, res){
     path: "/"
   }
   j.add(cookie)
-
   var requestOptions = {
     url: batteryUrl,
     jar: j
