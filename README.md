@@ -1,6 +1,6 @@
 #TeslaRange backend
 
-Serves as middle-man b/w Tesla & google maps APIs. Consistent format & error handling. All requests must be `POST` requests with `email` and `password` fields corresponding to valid teslamotors.com login credentials.
+Serves as middle-man b/w Tesla & google maps APIs. Consistent format & error handling. All `POST` requests require `email` and `password` fields corresponding to valid teslamotors.com login credentials. After first valid login, cookie from Tesla API is passed to user. Must be sent with all subsequent requests.
 
 ##Routes:
 
@@ -10,11 +10,25 @@ ex (using mithril, see below for curl exampls):
 ```
 m.request({
   method: "POST",
-  url: "http://localhost:3000/location",
+  url: "http://localhost:3000/",
   data: {
     email: "myTeslaEmail",
     password: "myTeslaPassword"
   }
+}).then(function(results){ console.log(results) })
+
+// logs:
+logged in!
+```
+Then:
+```
+var xhrConfig = function(xhr){
+  xhr.withCredentials = true
+}
+m.request({
+  method: "Get",
+  url: "http://localhost:3000/location",
+  config: xhrConfig
 }).then(function(results){ console.log(results) })
 
 // logs:
@@ -28,16 +42,16 @@ m.request({
 ```
 
 ###`/battery`
-Gives battery size, current range & estimate range, as well as battery level
-ex:
+Gives battery size, current range & estimate range, as well as battery level.
+ex (assuming already logged in):
 ```
+var xhrConfig = function(xhr){
+  xhr.withCredentials = true
+}
 m.request({
-  method: "POST",
+  method: "GET",
   url: "http://localhost:3000/battery",
-  data: {
-    email: "myTeslaEmail",
-    password: "myTeslaPassword"
-  }
+  config: xhrConfig
 }).then(function(results){ console.log(results) })
 
 // logs:
@@ -85,11 +99,15 @@ m.request({
 
 Examples using curl:
 ```
-curl -H "Content-Type: application/json" -d '{"email": "myTeslaEmail", "password": "myTeslaPassword"}' http://localhost:3000/location
+curl -H "Content-Type: application/json" -d '{"email": "myTeslaEmail", "password": "myTeslaPassword"}' http://localhost:3000/
+```
+Then:
+```
+curl --cookie "user_credentials=[cookie string]" http://localhost:3000/location
 
-curl -H "Content-Type: application/json" -d '{"email": "myTeslaEmail", "password": "myTeslaPassword"}' http://localhost:3000/battery
+curl --cookie "user_credentials=[cookie string]" http://localhost:3000/battery
 
-curl -H "Content-Type: application/json" -d '{"email": "myTeslaEmail", "password": "myTeslaPassword", "origin": "San Francisco, CA", "destination": "37.5482486,-121.9885313"}' http://localhost:3000/battery
+curl -H "Content-Type: application/json" -d '{"origin": "San Francisco, CA", "destination": "37.5482486,-121.9885313"}' http://localhost:3000/distance
 ```
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
