@@ -2,6 +2,56 @@ var request = require('request')
 var portal = 'https://portal.vn.teslamotors.com'
 var routes = {}
 
+routes.login = function(req, res, next){
+  var loginOptions = {
+    method: 'POST',
+    url: portal + '/login',
+    form: {
+      "user_session[email]": req.body.email,
+      "user_session[password]": req.body.password,
+    }
+  }
+
+  request(loginOptions, function(error, response, body){
+    // Stringify body because Tesla API always gives HTML on /login
+    var body = JSON.stringify(body)
+    if( body.indexOf("You do not have access.") > 0 ){
+      error = new Error("You do not have access. Invalid credentials")
+    }
+    if(error){ next(error) }else{
+
+      /****************************************************
+       *  Grab cookie from Tesla API & pass onto client.  *
+       *    user_credentials = <encrypted string>         *
+       *  sets expiration date, path, makes accessible to *
+       *  client through JS & doens't require client send *
+       *  cookie through https                            *
+       ****************************************************/
+
+      var responseCookie = response.headers["set-cookie"][0].split("; ")
+      var name = responseCookie[0].split("=")[0]
+      var value = responseCookie[0].split("=")[1]
+
+      if( name === "user_credentials" ){
+        var cookie = {
+          name: name,
+          value: value
+        }
+
+        var cookieOptions = {
+          expires: new Date(responseCookie[2].split("=")[1]),
+          path: responseCookie[1].split("=")[1],
+          httpOnly: false,
+          secure: false
+        }
+
+        res.cookie(cookie.name, cookie.value, cookieOptions)
+        res.status(200).json('logged in!')
+      }
+    }
+  })
+}
+
 routes.location = function(req, res){
   var locationUrl = portal + '/vehicles/' + req.vehicleID
   + '/command/drive_state'
