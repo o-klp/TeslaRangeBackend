@@ -64,6 +64,7 @@ routes.location = function(req, res){
     path: "/"
   }
   j.add(cookie)
+
   var requestOptions = {
     url: locationUrl,
     jar: j
@@ -101,6 +102,7 @@ routes.battery = function(req, res){
     path: "/"
   }
   j.add(cookie)
+
   var requestOptions = {
     url: batteryUrl,
     jar: j
