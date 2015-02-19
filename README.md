@@ -9,7 +9,7 @@ Post request to /login requires valid teslamotors email & password. If succesful
 ```
 m.request({
   method: "POST",
-  url: "http://localhost:3000/",
+  url: "http://localhost:3000/login",
   data: {
     email: "myTeslaEmail",
     password: "myTeslaPassword"
@@ -120,8 +120,7 @@ TODO:
   - add option to specify units (/distance)
   - add option to specify units (/battery)
   - proper status codes
-  - actual authentication
   - promises
   - tests
-  - let user select which of their cars to track (cookie for vid after login)
+  - let user select which of their cars to track (cookie for vid & battery after login)
   - 
